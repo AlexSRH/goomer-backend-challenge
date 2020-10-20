@@ -3,8 +3,15 @@ import { getRepository } from 'typeorm';
 
 import * as Yup from 'yup';
 
-import restaurantView from '../views/restaurants_view';
 import Restaurant from '../models/Restaurant';
+
+interface DataTypes {
+  name?: string;
+  longitude?: number;
+  latitude?: number;
+  about?: string;
+  opening_hours?: string;
+};
 
 export default {
   async index(req: Request, res: Response) {
@@ -14,7 +21,7 @@ export default {
       relations: ['images']
     });
 
-    return res.json(restaurantView.renderMany(restaurants));
+    return res.json(restaurants);
   },
 
   async show(req: Request, res: Response) {
@@ -26,7 +33,7 @@ export default {
       relations: ['images']
     });
 
-    return res.json(restaurantView.render(restaurant));
+    return res.json(restaurant);
   },
 
   async create(req: Request, res: Response) {
@@ -37,7 +44,7 @@ export default {
       about,
       opening_hours,
     } = req.body;
-  
+
     const restaurantsRepository = getRepository(Restaurant);
 
     const reqImages = req.files as Express.Multer.File[];
@@ -66,15 +73,83 @@ export default {
         })
       )
     });
-  
+
     await schema.validate(data, {
       abortEarly: false,
     });
 
     const restaurant = restaurantsRepository.create(data);
-  
+
     await restaurantsRepository.save(restaurant);
-  
+
     return res.status(201).json(restaurant);
+  },
+
+  async update(req: Request, res: Response) {
+    let {
+      name,
+      longitude,
+      latitude,
+      about,
+      opening_hours,
+    }:DataTypes = req.body;
+
+    const { id } = req.params;
+
+    const restaurantsRepository = getRepository(Restaurant);
+  
+    const restaurant = await restaurantsRepository.findOneOrFail(id, {
+      relations: ['images']
+    });
+
+    if (name) {
+      restaurant.name = name;
+    };
+
+    if (longitude) {
+      restaurant.longitude = longitude;
+    };
+
+    if (latitude) {
+      restaurant.latitude = latitude;
+    };
+    
+    if (about) {
+      restaurant.about = about;
+    };
+
+    if (opening_hours) {
+      restaurant.opening_hours = opening_hours;
+    };
+
+    const reqImages = req.files as Express.Multer.File[];
+    // const images = reqImages.map(image => {
+    //   return { path: image.filename }
+    // });
+
+    const images = reqImages.map((image, index) => { 
+      return { id: index, path: image.filename };
+    });
+
+    // const images = reqImages.map(image => { return { id: image.id }})
+
+    if (images) {
+      restaurant.images = images;
+    }
+
+    await restaurantsRepository.save(restaurant);
+
+    return res.status(200).json(restaurant);
+  },
+
+  async delete(req: Request, res: Response) {
+    const { id } = req.params;
+
+    const restaurantsRepository = getRepository(Restaurant);
+    const restaurant = await restaurantsRepository.findOne(id);
+
+    await restaurantsRepository.delete(id);
+
+    return res.status(200).json(restaurant);
   }
 };
