@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn } from 't
 import Image from './Image';
 
 @Entity('restaurants')
-export default class Rest {
+export default class Restaurant {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
