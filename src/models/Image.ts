@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import Restaurant from './Restaurant';
+import Product from './Product';
 
 @Entity('images')
 export default class Image {
@@ -12,4 +13,8 @@ export default class Image {
   @ManyToOne(() => Restaurant, restaurant => restaurant.images)
   @JoinColumn({ name: 'restaurant_id' })
   restaurant: Restaurant;
+
+  @ManyToOne(() => Product, product => product.images)
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
 }
