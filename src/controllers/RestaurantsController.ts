@@ -11,6 +11,11 @@ interface DataTypes {
   latitude?: number;
   about?: string;
   opening_hours?: string;
+  images?: Array<{
+    id: number;
+    url: string;
+    restaurant_id: number;
+  }>
 };
 
 export default {
@@ -123,18 +128,22 @@ export default {
     };
 
     const reqImages = req.files as Express.Multer.File[];
-    // const images = reqImages.map(image => {
-    //   return { path: image.filename }
-    // });
 
     const images = reqImages.map((image, index) => { 
-      return { id: index, path: image.filename };
+      return { restaurant_id: restaurant.id, id: index, path: image.filename };
     });
 
     // const images = reqImages.map(image => { return { id: image.id }})
 
     if (images) {
+      restaurantsRepository.save(images);
+
       restaurant.images = images;
+
+      // console.log(images);
+
+      // console.log(restaurant.images);
+      // console.log(images)
     }
 
     await restaurantsRepository.save(restaurant);
