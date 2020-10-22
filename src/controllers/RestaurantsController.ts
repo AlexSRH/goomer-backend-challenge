@@ -1,23 +1,10 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
-import Image from '../models/Image';
 
 import * as Yup from 'yup';
 
 import Restaurant from '../models/Restaurant';
-
-interface DataTypes {
-  name?: string;
-  longitude?: number;
-  latitude?: number;
-  about?: string;
-  opening_hours?: string;
-  images?: Array<{
-    id: number;
-    url: string;
-    restaurant_id: number;
-  }>
-};
+import ImageRestaurant from '../models/ImageRestaurant';
 
 export default {
   async index(req: Request, res: Response) {
@@ -98,53 +85,51 @@ export default {
       latitude,
       about,
       opening_hours,
-    }:DataTypes = req.body;
+    } = req.body;
 
     const { id } = req.params;
 
     const restaurantsRepository = getRepository(Restaurant);
-  
-    const restaurant = await restaurantsRepository.findOneOrFail(id, {
-      relations: ['images']
+    const imagesRestaurantRepository = getRepository(ImageRestaurant)
+
+    const reqImages = req.files as Express.Multer.File[];
+
+    const images = reqImages.map(image => {
+      return { path: image.filename }
     });
 
-    if (name) {
-      restaurant.name = name;
+    const data = {
+      name,
+      longitude,
+      latitude,
+      about,
+      opening_hours
     };
 
-    if (longitude) {
-      restaurant.longitude = longitude;
-    };
+    const updatedRestaurant = restaurantsRepository.create(data);
 
-    if (latitude) {
-      restaurant.latitude = latitude;
-    };
-    
-    if (about) {
-      restaurant.about = about;
-    };
+    const updatedImagesRestaurant = images.map(image => {
+      return imagesRestaurantRepository.create({
+        path: image.path,
+        restaurant: {
+          id: Number(id)
+        }
+      });
+    });
 
-    if (opening_hours) {
-      restaurant.opening_hours = opening_hours;
-    };
+    await restaurantsRepository.update(id, updatedRestaurant);
 
-    // const reqImages = req.files as Express.Multer.File[];
+    if (images) {
+      await imagesRestaurantRepository.delete({
+        restaurant: {
+          id: Number(id)
+        }
+      });
 
-    // const images = reqImages.map((image, index) => { 
-    //   return { id: index, path: image.filename };
-    // });
+      await imagesRestaurantRepository.save(updatedImagesRestaurant);
+    }
 
-    // // const images = reqImages.map(image => { return { id: image.id }})
-
-    // if (images) {
-    //   restaurantsRepository.save(images);
-
-    //   restaurant.images = images as Image[];
-    // }
-
-    await restaurantsRepository.save(restaurant);
-
-    return res.status(200).json(restaurant);
+    return res.status(200).json(updatedRestaurant);
   },
 
   async delete(req: Request, res: Response) {
