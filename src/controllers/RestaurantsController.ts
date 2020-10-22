@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
+import Image from '../models/Image';
 
 import * as Yup from 'yup';
 
@@ -130,7 +131,7 @@ export default {
     const reqImages = req.files as Express.Multer.File[];
 
     const images = reqImages.map((image, index) => { 
-      return { restaurant_id: restaurant.id, id: index, path: image.filename };
+      return { id: index, path: image.filename };
     });
 
     // const images = reqImages.map(image => { return { id: image.id }})
@@ -138,12 +139,7 @@ export default {
     if (images) {
       restaurantsRepository.save(images);
 
-      restaurant.images = images;
-
-      // console.log(images);
-
-      // console.log(restaurant.images);
-      // console.log(images)
+      restaurant.images = images as Image[];
     }
 
     await restaurantsRepository.save(restaurant);
