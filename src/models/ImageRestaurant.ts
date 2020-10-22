@@ -1,8 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import Restaurant from './Restaurant';
 
-@Entity('imagesProduct')
-export default class Image {
+@Entity('imagesRestaurant')
+export default class ImageRestaurant {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
