@@ -128,19 +128,19 @@ export default {
       restaurant.opening_hours = opening_hours;
     };
 
-    const reqImages = req.files as Express.Multer.File[];
+    // const reqImages = req.files as Express.Multer.File[];
 
-    const images = reqImages.map((image, index) => { 
-      return { id: index, path: image.filename };
-    });
+    // const images = reqImages.map((image, index) => { 
+    //   return { id: index, path: image.filename };
+    // });
 
-    // const images = reqImages.map(image => { return { id: image.id }})
+    // // const images = reqImages.map(image => { return { id: image.id }})
 
-    if (images) {
-      restaurantsRepository.save(images);
+    // if (images) {
+    //   restaurantsRepository.save(images);
 
-      restaurant.images = images as Image[];
-    }
+    //   restaurant.images = images as Image[];
+    // }
 
     await restaurantsRepository.save(restaurant);
 
