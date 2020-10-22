@@ -25,24 +25,33 @@ export class createProducts1603232408759 implements MigrationInterface {
             precision: 2,
           },
           {
-            name: 'longitude',
+            name: 'category',
+            type: 'text',
+          },
+          {
+            name: 'offer',
+            type: 'boolean',
+          },
+          {
+            name: 'offer_description',
+            type: 'text',
+          },
+          {
+            name: 'offer_price',
             type: 'decimal',
             scale: 10,
             precision: 2,
           },
           {
-            name: 'about',
+            name: 'offer_length',
             type: 'text',
           },
-          {
-            name: 'opening_hours',
-            type: 'varchar',
-          }
         ],
       }))
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+      await queryRunner.dropTable('products');
     }
 
 }
